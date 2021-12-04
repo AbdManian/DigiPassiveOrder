@@ -14,10 +14,15 @@ class Product:
 
 
 class ProductList:
-    def __init__(self):
+    def __init__(self, perform_filter=False, filter_text=''):
         self.pdict = {}
+        self.perform_filter = perform_filter
+        self.filter_text = filter_text
 
-    def insert_product(self, code, name, title, price):
+    def insert_product(self, code, name, title, price, filter_value=''):
+        if self.perform_filter and self.filter_text not in filter_value:
+            return
+
         if code in self.pdict:
             self.pdict[code].add_cnt()
         else:

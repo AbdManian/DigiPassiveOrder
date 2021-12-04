@@ -9,11 +9,19 @@ COL_ID_TITLE = 6
 COL_ID_PRICE = 10
 
 input_file = sys.argv[1]
+filter_column = 0
+filter_text = ''
+if len(sys.argv) >= 4:
+    filter_column = int(sys.argv[2])
+    filter_text = sys.argv[3]
+
+perform_filter = filter_column>0
+
 wb = load_workbook(input_file)
 sheet = wb.active
 
 num_rows = sheet.max_row
-products = ProductList()
+products = ProductList(perform_filter=perform_filter, filter_text=filter_text)
 
 for r in range(2, num_rows+1):
     code = sheet.cell(row=r, column=COL_ID_CODE)
@@ -21,9 +29,17 @@ for r in range(2, num_rows+1):
     title = sheet.cell(row=r, column=COL_ID_TITLE)
     price = sheet.cell(row=r, column=COL_ID_PRICE)
 
-    products.insert_product(code.value, name.value, title.value, price.value)
+    filter_value = ''
+    if perform_filter:
+        filter_value = sheet.cell(row=r, column=filter_column).value
 
-result_sh = wb.create_sheet('Products')
+    products.insert_product(code.value, name.value, title.value, price.value, filter_value)
+
+sheet_name = 'Products'
+if perform_filter:
+    sheet_name += f' {filter_text}'
+    sheet_name = sheet_name.replace('/', '-')
+result_sh = wb.create_sheet(sheet_name)
 
 RES_COL_ID_NAME = 1
 RES_COL_ID_CODE = 2
